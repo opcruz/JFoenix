@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.rationalityfrontline.workaround"
-version = "21.0.0"
+version = "21.1.1"
 val NAME = project.name
 val DESC = "JavaFX Material Design Library"
 val GITHUB_REPO = "RationalityFrontline/JFoenix"
@@ -16,7 +16,7 @@ repositories {
 }
 
 javafx {
-    version = "21.0.2"
+    version = "21.0.8"
     modules = listOf("javafx.controls", "javafx.fxml")
     configuration = "compileOnly"
 }
@@ -38,6 +38,7 @@ tasks {
             "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=com.jfoenix",
             "--add-exports=javafx.controls/com.sun.javafx.scene.control=com.jfoenix",
             "--add-exports=javafx.graphics/com.sun.javafx.util=com.jfoenix",
+            "--add-exports=javafx.base/com.sun.javafx.collections=com.jfoenix"
         )
     }
     javadoc {
@@ -56,6 +57,7 @@ tasks {
                 "javafx.controls/com.sun.javafx.scene.control.behavior=com.jfoenix",
                 "javafx.controls/com.sun.javafx.scene.control.inputmap=com.jfoenix",
                 "javafx.controls/com.sun.javafx.scene.control=com.jfoenix",
+                "javafx.base/com.sun.javafx.collections=com.jfoenix"
             ))
         }
     }

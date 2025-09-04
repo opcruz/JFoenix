@@ -21,11 +21,8 @@ package com.jfoenix.skins;
 
 import com.jfoenix.adapters.ReflectionHelper;
 import com.jfoenix.controls.behavior.JFXGenericPickerBehavior;
-import com.sun.javafx.binding.ExpressionHelper;
-import com.sun.javafx.event.EventHandlerManager;
-import com.sun.javafx.stage.WindowEventDispatcher;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.value.ChangeListener;
+import com.sun.javafx.scene.control.IDisconnectable;
+import com.sun.javafx.scene.control.ListenerHelper;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.ComboBoxBase;
@@ -34,63 +31,75 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.skin.ComboBoxBaseSkin;
 import javafx.scene.control.skin.ComboBoxPopupControl;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
-import javafx.stage.Window;
+import javafx.scene.layout.StackPane;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public abstract class JFXGenericPickerSkin<T> extends ComboBoxPopupControl<T>{
-
-    private final EventHandler<MouseEvent> mouseEnteredEventHandler;
-    private final EventHandler<MouseEvent> mousePressedEventHandler;
-    private final EventHandler<MouseEvent> mouseReleasedEventHandler;
-    private final EventHandler<MouseEvent> mouseExitedEventHandler;
+public abstract class JFXGenericPickerSkin<T> extends ComboBoxPopupControl<T> {
 
     protected JFXGenericPickerBehavior<T> behavior;
 
+    private final EventHandler<MouseEvent> mouseEnteredEventHandler = event -> behavior.mouseEntered(event);
+    private final EventHandler<MouseEvent> mousePressedEventHandler = event -> {
+        behavior.mousePressed(event);
+        event.consume();
+    };
+    private final EventHandler<MouseEvent> mouseReleasedEventHandler = event -> {
+        behavior.mouseReleased(event);
+        event.consume();
+    };
+    private final EventHandler<MouseEvent> mouseExitedEventHandler = event -> behavior.mouseExited(event);
+
     // reference of the arrow button node in getChildren (not the actual field)
-    protected Pane arrowButton;
+    protected StackPane arrowButton;
     protected PopupControl popup;
+
+    protected final List<IDisconnectable> iDisconnectables;
 
     public JFXGenericPickerSkin(ComboBoxBase<T> comboBoxBase) {
         super(comboBoxBase);
-        behavior = new JFXGenericPickerBehavior<T>(comboBoxBase);
+        behavior = new JFXGenericPickerBehavior<>(comboBoxBase);
 
-        removeParentFakeFocusListener(comboBoxBase);
+        ListenerHelper.get(this).disconnect(); // remove all parent listeners
+        iDisconnectables = getItemsListenerHelper();
 
-        this.mouseEnteredEventHandler = event -> behavior.mouseEntered(event);
-        this.mousePressedEventHandler = event -> {
-            behavior.mousePressed(event);
-            event.consume();
-        };
-        this.mouseReleasedEventHandler = event -> {
-            behavior.mouseReleased(event);
-            event.consume();
-        };
-        this.mouseExitedEventHandler = event -> behavior.mouseExited(event);
-
-        arrowButton = (Pane) getChildren().get(0);
-
-        parentArrowEventHandlerTerminator.accept("mouseEnteredEventHandler", MouseEvent.MOUSE_ENTERED);
-        parentArrowEventHandlerTerminator.accept("mousePressedEventHandler", MouseEvent.MOUSE_PRESSED);
-        parentArrowEventHandlerTerminator.accept("mouseReleasedEventHandler", MouseEvent.MOUSE_RELEASED);
-        parentArrowEventHandlerTerminator.accept("mouseExitedEventHandler", MouseEvent.MOUSE_EXITED);
-        this.unregisterChangeListeners(comboBoxBase.editableProperty());
-
+        initAndUnregisterParentArrowButton();
         updateArrowButtonListeners();
-        registerChangeListener(comboBoxBase.editableProperty(), obs->{
+        registerChangeListener(comboBoxBase.editableProperty(), obs-> {
             updateArrowButtonListeners();
             reflectUpdateDisplayArea();
         });
 
-        removeParentPopupHandlers();
+        initPopupAndRemoveParentListener();
+    }
 
-        popup = ReflectionHelper.getFieldContent(ComboBoxPopupControl.class, this, "popup");
+    private List<IDisconnectable> getItemsListenerHelper() {
+        ListenerHelper lh = ListenerHelper.get(this);
+        return ReflectionHelper.getFieldContent(ListenerHelper.class, lh, "items");
+    }
+
+    private void parentArrowTerminator(String handlerName, EventType<?> eventType) {
+        EventHandler<? super javafx.event.Event> handler = ReflectionHelper.getFieldContent(ComboBoxBaseSkin.class, this, handlerName);
+        arrowButton.removeEventHandler(eventType, handler);
+    }
+
+    private void initAndUnregisterParentArrowButton() {
+        arrowButton = (StackPane) getChildren().get(0);
+        parentArrowTerminator("mouseEnteredEventHandler", MouseEvent.MOUSE_ENTERED);
+        parentArrowTerminator("mousePressedEventHandler", MouseEvent.MOUSE_PRESSED);
+        parentArrowTerminator("mouseReleasedEventHandler", MouseEvent.MOUSE_RELEASED);
+        parentArrowTerminator("mouseExitedEventHandler", MouseEvent.MOUSE_EXITED);
+    }
+
+    private void initPopupAndRemoveParentListener() {
+        popup = ReflectionHelper.invoke(ComboBoxPopupControl.class, this, "getPopup");
+        popup.setOnAutoHide(event -> behavior.onAutoHide(popup)); // override parent auto hide
+        iDisconnectables.get(0).disconnect(); // unregister popup mouse clicked
+        popup.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> behavior.onAutoHide(popup));
     }
 
     @Override
@@ -101,56 +110,11 @@ public abstract class JFXGenericPickerSkin<T> extends ComboBoxPopupControl<T>{
         }
     }
 
-
     /***************************************************************************
      *                                                                         *
      * Reflections internal API                                                *
      *                                                                         *
      **************************************************************************/
-
-    private BiConsumer<String, EventType<?>> parentArrowEventHandlerTerminator = (handlerName, eventType) ->{
-        try {
-            EventHandler handler = ReflectionHelper.getFieldContent(ComboBoxBaseSkin.class, this, handlerName);
-            arrowButton.removeEventHandler(eventType, handler);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    };
-
-    private void removeParentFakeFocusListener(ComboBoxBase<T> comboBoxBase) {
-        // handle FakeFocusField cast exception
-        try {
-            final ReadOnlyBooleanProperty focusedProperty = comboBoxBase.focusedProperty();
-            ExpressionHelper value = ReflectionHelper.getFieldContent(focusedProperty.getClass().getSuperclass().getSuperclass(), focusedProperty, "helper");
-            ChangeListener[] changeListeners = ReflectionHelper.getFieldContent(value.getClass(), value, "changeListeners");
-            // remove parent focus listener to prevent editor class cast exception
-            for(int i = changeListeners.length - 1; i > 0; i--) {
-                if (changeListeners[i] != null && changeListeners[i].getClass().getName().contains("ComboBoxPopupControl")) {
-                    focusedProperty.removeListener(changeListeners[i]);
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void removeParentPopupHandlers() {
-        try {
-            PopupControl popup = ReflectionHelper.invoke(ComboBoxPopupControl.class, this, "getPopup");
-            popup.setOnAutoHide(event -> behavior.onAutoHide(popup));
-            WindowEventDispatcher dispatcher = ReflectionHelper.invoke(Window.class, popup, "getInternalEventDispatcher");
-            Map compositeEventHandlersMap = ReflectionHelper.getFieldContent(EventHandlerManager.class, dispatcher.getEventHandlerManager(), "eventHandlerMap");
-            compositeEventHandlersMap.remove(MouseEvent.MOUSE_CLICKED);
-//            CompositeEventHandler compositeEventHandler = (CompositeEventHandler) compositeEventHandlersMap.get(MouseEvent.MOUSE_CLICKED);
-//            Object obj = fieldConsumer.apply(()->CompositeEventHandler.class.getDeclaredField("firstRecord"),compositeEventHandler);
-//            EventHandler handler = (EventHandler) fieldConsumer.apply(() -> obj.getClass().getDeclaredField("eventHandler"), obj);
-//            popup.removeEventHandler(MouseEvent.MOUSE_CLICKED, handler);
-            popup.addEventHandler(MouseEvent.MOUSE_CLICKED, click-> behavior.onAutoHide(popup));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     private void updateArrowButtonListeners() {
         if (getSkinnable().isEditable()) {
@@ -173,9 +137,9 @@ public abstract class JFXGenericPickerSkin<T> extends ComboBoxPopupControl<T>{
      *                                                                         *
      **************************************************************************/
 
-    private HashMap<String, Method> parentCachedMethods = new HashMap<>();
+    private final HashMap<String, Method> parentCachedMethods = new HashMap<>();
 
-    Function<String, Method> methodSupplier = name ->{
+    Function<String, Method> methodSupplier = name -> {
         if(!parentCachedMethods.containsKey(name)){
             try {
                 Method method = ReflectionHelper.getMethod(ComboBoxPopupControl.class, name);

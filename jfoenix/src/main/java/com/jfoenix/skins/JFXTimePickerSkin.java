@@ -43,7 +43,7 @@ import java.time.LocalTime;
  */
 public class JFXTimePickerSkin extends JFXGenericPickerSkin<LocalTime> {
 
-    private JFXTimePicker jfxTimePicker;
+    private final JFXTimePicker jfxTimePicker;
     // displayNode is the same as editorNode
     private TextField displayNode;
     private JFXTimePickerContent content;
@@ -51,20 +51,18 @@ public class JFXTimePickerSkin extends JFXGenericPickerSkin<LocalTime> {
 
     public JFXTimePickerSkin(JFXTimePicker timePicker) {
         super(timePicker);
-
         this.jfxTimePicker = timePicker;
 
         // add focus listener on editor node
-        timePicker.focusedProperty().addListener(observable -> {
-            if (getEditor() != null && !timePicker.isFocused()) {
+        timePicker.focusedProperty().addListener((obj, oldVal, newVal) -> {
+            if (getEditor() != null && !newVal) {
                 reflectSetTextFromTextFieldIntoComboBoxValue();
             }
         });
 
-        updateArrow(timePicker);
-        ((JFXTextField) getEditor()).setFocusColor(timePicker.getDefaultColor());
+        updateArrow();
 
-        registerChangeListener(timePicker.defaultColorProperty(), obs -> updateArrow(timePicker));
+        registerChangeListener(timePicker.defaultColorProperty(), obs -> updateArrow());
         registerChangeListener(timePicker.converterProperty(), obs -> reflectUpdateDisplayNode());
         registerChangeListener(timePicker.editorProperty(), obs -> reflectUpdateDisplayNode());
         registerChangeListener(timePicker.showingProperty(), obs -> {
@@ -80,9 +78,9 @@ public class JFXTimePickerSkin extends JFXGenericPickerSkin<LocalTime> {
         });
     }
 
-    private void updateArrow(JFXTimePicker picker) {
+    private void updateArrow() {
         ((Region) arrowButton.getChildren().get(0)).setBackground(new Background(
-            new BackgroundFill(picker.getDefaultColor(), null, null)));
+            new BackgroundFill(jfxTimePicker.getDefaultColor(), null, null)));
         ((JFXTextField) getEditor()).setFocusColor(jfxTimePicker.getDefaultColor());
     }
 

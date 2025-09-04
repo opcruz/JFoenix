@@ -30,16 +30,16 @@ import javafx.scene.control.PopupControl;
  */
 public class JFXGenericPickerBehavior<T> extends ComboBoxBaseBehavior<T> {
 
-    public JFXGenericPickerBehavior(ComboBoxBase<T> var1) {
-        super(var1);
+    public JFXGenericPickerBehavior(ComboBoxBase<T> comboBoxBase) {
+        super(comboBoxBase);
     }
 
-    public void onAutoHide(PopupControl var1) {
-        if (!var1.isShowing() && this.getNode().isShowing()) {
-            this.getNode().hide();
+    public void onAutoHide(PopupControl popup) {
+        if (!popup.isShowing() && getNode().isShowing()) {
+            getNode().hide();
         }
-        if (!this.getNode().isShowing()) {
-            super.onAutoHide(var1);
+        if (!getNode().isShowing()) {
+            super.onAutoHide(popup);
         }
     }
 

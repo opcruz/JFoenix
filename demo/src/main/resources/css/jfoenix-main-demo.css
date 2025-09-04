@@ -1018,14 +1018,230 @@
 *                                                                              *
 *******************************************************************************/
 
-.custom-color-picker {
-    -jfx-default-color: #3f51b5;
+* {
+    -dark-primary-color    : #2F2F2F;
+    -default-primary-color : #F5F5F5;
+    -light-primary-color   : #424242;
+    -accent-color          : #1A53EE;
+    -accent-light          : #2979FF;
+    -accent-tint           : #5481FF;
+    -accent-shade          : #5481FF;
+    -accent-highlight      : #2962FFAF;
+    -accent-color-secondary: #F5AD11;
+    -vfp-green             : #008000;
+    -vfp-yellow            : #974706;
+    -vfp-red               : #C00000;
+    -vfp-blue              : #0000FF;
+    -vfp-green-alt         : #B2FFB2;
+    -vfp-yellow-alt        : #FFFFB2;
+    -vfp-red-alt           : #FFB2B2;
+    -vfp-orange-alt        : #ffc770;
+    -vfp-blue-alt          : #B2FFFF;
+    -swatch-blueGrey-100   : #CFD8DC;
+    -swatch-brown-100      : #D7CCC8;
+    -swatch-indigo-100     : #C5CAE9;
+    -swatch-red-100        : #FFCDD2;
+    -swatch-pink-100       : #FCE4EC;
+    -swatch-orange-100     : #FFCCBC;
+    -swatch-teal-100       : #E0F2F1;
+    -swatch-blue-100       : #E3F2FD;
+    -swatch-green-100      : #DCEDC8;
+    -swatch-amber-100      : #FFF8E1;
+    -swatch-red-200        : #ff7e7e;
+    -swatch-red-400        : #e54d4d;
+    -swatch-green-200      : #A5FFA5;
+    -swatch-blue-200       : #9BFFFF;
+    -swatch-amber-200      : #ffff80;
+    -swatch-orange-200     : #FFCC41;
+    -swatch-orange-400     : #ffc91a;
+    -swatch-blueGrey-200   : #91BBC7;
+    -swatch-indigo-200     : #BD77FF;
+    -swatch-pink-200       : #FC6C9A;
+    -swatch-teal-200       : #4DFFF0;
+    -swatch-brown-200      : #FFB394;
+    -swatch-orange-300     : #FF8A65;
+    -swatch-red-700        : #D32F2F;
+    -swatch-green-700      : #0E9654;
+    -swatch-blue-700       : #1976D2;
+    -swatch-amber-700      : #FFA000;
+    -swatch-orange-700     : #F57C00;
+    -swatch-deep-orange-700: #E64A19;
+    -swatch-cyan-100       : #dafdff;
+    -swatch-cyan-700       : #0097A7;
+    -swatch-pink-700       : #C2185B;
+    -swatch-teal-700       : #00796B;
+    -swatch-blueGrey-700   : #455A64;
+    -swatch-lime-700       : #AFB42B;
+    -swatch-brown-700      : #5D4037;
+    -swatch-blue-100       : #BBDEFB;
+    -swatch-blue-300       : #64B5F6;
+    -swatch-blue-400       : #42A5F5;
+    -swatch-blue-500       : #2196F3;
+    -swatch-blue-600       : #1E88E5;
+    -swatch-blue-700       : #1976D2;
+    -swatch-blue-800       : #1565C0;
+    -swatch-blue-900       : #0D47A1;
+    -swatch-grey-100       : #F5F5F5;
+    -swatch-grey-200       : #EEEEEE;
+    -swatch-grey-300       : #E0E0E0;
+    -swatch-grey-400       : #BDBDBD;
+    -swatch-grey-500       : #9E9E9E;
+    -swatch-grey-600       : #757575;
+    -swatch-grey-700       : #616161;
+    -swatch-grey-800       : #424242;
+    -swatch-grey-900       : #212121;
+    -swatch-grey-000       : #1E1E1E;
 }
 
-.jfx-date-picker > .jfx-text-field,
-.jfx-time-picker > .jfx-text-field {
-    -jfx-focus-color: -jfx-default-color;
+
+/*.jfx-date-picker > .jfx-text-field,*/
+/*.jfx-time-picker > .jfx-text-field {*/
+/*    -jfx-focus-color: -default-primary-color;*/
+/*}*/
+
+.jfx-date-picker {
+    -jfx-default-color          : -dark-primary-color;
+    -fx-control-inner-background: -default-primary-color;
 }
+
+.jfx-date-picker .spinner {
+    -fx-border-width: 0 0 0 0;
+    -fx-border-color: transparent;
+}
+
+.jfx-date-picker .spinner-label {
+    -fx-text-fill: -dark-primary-color;
+}
+
+.jfx-date-picker .today {
+    -fx-border-color     : -accent-shade;
+    -fx-border-radius    : 6px;
+    -fx-background-insets: 1px;
+}
+
+.jfx-date-picker:disabled,
+.jfx-date-picker:disabled .arrow-button {
+    -fx-opacity: 0.90;
+}
+
+.jfx-date-picker:disabled .date-picker-display-node .input-line {
+    -fx-border-color: -default-primary-color;
+    -fx-border-style: segments(1.5, 2, 1.5, 2) line-cap butt;
+}
+
+.data-picker-list-cell {
+    -fx-text-fill       : -dark-primary-color;
+    -fx-font-weight     : BOLD;
+    -fx-background-color: -default-primary-color;
+}
+
+.date-picker-popup .date-picker-list-view .data-picker-list-cell:selected-year {
+    -fx-text-fill: -accent-color;
+}
+
+.date-picker-popup .date-picker-list-view .data-picker-list-cell:selected-year:hover,
+.date-picker-popup .date-picker-list-view .data-picker-list-cell:selected-year:filled:selected {
+    -fx-text-fill: -default-primary-color;
+}
+
+.data-picker-list-cell:filled:hover {
+    -fx-background-color: -swatch-grey-800;
+    -fx-text-fill       : -default-primary-color;
+}
+
+.data-picker-list-cell:filled:selected:focused,
+.data-picker-list-cell:filled:selected {
+    -fx-background-color: -swatch-grey-900;
+    -fx-text-fill       : -default-primary-color;
+}
+
+.day-name-cell.date-cell,
+.week-number-cell.date-cell {
+    -fx-text-fill       : -accent-color;
+    -fx-font-weight     : BOLD;
+    -fx-background-color: transparent;
+}
+
+.date-picker-popup .left-button,
+.date-picker-popup .right-button {
+    -fx-background-color : transparent;
+    -fx-background-radius: 4em;
+}
+
+.date-picker-popup .left-button .jfx-svg-glyph,
+.date-picker-popup .right-button .jfx-svg-glyph {
+    -fx-background-color: -light-primary-color;
+}
+
+.date-picker-popup .calendar-grid {
+    -fx-pref-width : 240;
+    -fx-pref-height: 200;
+}
+
+.date-cell {
+    -fx-text-fill: -dark-primary-color;
+}
+
+.date-cell.selected,
+.date-cell:focused,
+.date-cell:hover {
+    -fx-background-color : -accent-color;
+    -fx-background-radius: 6px;
+    -fx-background-insets: 1px;
+    -fx-text-fill        : -default-primary-color;
+}
+
+
+.date-picker-popup > .month-year-pane {
+    -fx-background-color: -dark-primary-color;
+    /*-fx-background-color:  derive(-fx-box-border,30%), linear-gradient(to bottom, derive(-jfx-default-color,-3%), derive(-jfx-default-color,5%) 50%, derive(-jfx-default-color,-3%));;*/
+}
+
+
+
+
+
+
+
+
+/*******************************************************************************
+ *                               TimePicker                                    *
+ ******************************************************************************/
+
+.jfx-time-picker>.arrow-button>.jfx-svg-glyph {
+    -fx-background-color: -dark-primary-color;
+}
+
+.jfx-time-picker {
+    -jfx-default-color          : -dark-primary-color;
+    -fx-control-inner-background: -default-primary-color;
+}
+
+.jfx-time-picker .spinner,
+.jfx-time-picker .label {
+    -fx-border-color: transparent;
+}
+
+.jfx-time-picker:disabled,
+.jfx-time-picker:disabled .arrow-button {
+    -fx-opacity: 0.90;
+}
+
+.jfx-time-picker:disabled .time-picker-display-node .input-line {
+    -fx-border-color: -default-primary-color;
+    -fx-border-style: segments(1.5, 2, 1.5, 2) line-cap butt;
+}
+
+
+
+
+
+
+
+
+/*.jfx-time-picker > .jfx-text-field {*/
+/*    -jfx-focus-color: -jfx-default-color;*/
+/*}*/
 
 .jfx-chip-view {
     -fx-background-color: WHITE;

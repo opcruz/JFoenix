@@ -37,11 +37,11 @@ import javafx.scene.layout.Region;
  */
 public class JFXListViewSkin<T> extends ListViewSkin<T> {
 
-    private VirtualFlow<ListCell<T>> flow;
+    private final VirtualFlow<ListCell<T>> flow;
 
     public JFXListViewSkin(final JFXListView<T> listView) {
         super(listView);
-        flow = (VirtualFlow<ListCell<T>>) getChildren().get(0);
+        flow = getVirtualFlow();
         JFXDepthManager.setDepth(flow, listView.depthProperty().get());
         listView.depthProperty().addListener((o, oldVal, newVal) -> JFXDepthManager.setDepth(flow, newVal));
     }
