@@ -244,13 +244,15 @@ public class JFXSnackbar extends Group {
         pauseTransition = Duration.INDEFINITE.equals(timeout) ? null : new PauseTransition(timeout);
         if (pauseTransition != null) {
             animation.setOnFinished(finish -> {
-                pauseTransition.setOnFinished(done -> {
-                    pauseTransition = null;
-                    eventsSet.remove(currentEvent);
-                    currentEvent = eventQueue.peek();
-                    close();
-                });
-                pauseTransition.play();
+                if (pauseTransition != null) {
+                    pauseTransition.setOnFinished(done -> {
+                        pauseTransition = null;
+                        eventsSet.remove(currentEvent);
+                        currentEvent = eventQueue.peek();
+                        close();
+                    });
+                    pauseTransition.play();
+                }
             });
         }
         return animation;
@@ -261,6 +263,10 @@ public class JFXSnackbar extends Group {
             openAnimation.stop();
         }
         if (this.isVisible()) {
+            if (pauseTransition != null) {
+                pauseTransition.stop();
+                pauseTransition = null;
+            }
             Timeline closeAnimation = new Timeline(
                 new KeyFrame(
                     Duration.ZERO,
@@ -340,6 +346,9 @@ public class JFXSnackbar extends Group {
     }
 
     private void refreshPopup() {
+        if (snackbarContainer == null) {
+            return;
+        }
         Bounds contentBound = this.getLayoutBounds();
         double offsetX = Math.ceil(snackbarContainer.getWidth() / 2) - Math.ceil(contentBound.getWidth() / 2);
         double offsetY = snackbarContainer.getHeight() - contentBound.getHeight();
