@@ -156,7 +156,7 @@ public class JFXCheckBoxSkin extends CheckBoxSkin {
 
     protected void updateChildren() {
         super.updateChildren();
-        getChildren().removeIf(node -> node.getStyleClass().contains("box"));
+//        getChildren().removeIf(node -> node.getStyleClass().contains("box"));
         if (rippler != null) {
             getChildren().add(rippler);
         }

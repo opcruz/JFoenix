@@ -95,6 +95,13 @@ public class JFXColorPickerSkin extends JFXGenericPickerSkin<Color> {
 
         // add listeners
         registerChangeListener(colorPicker.valueProperty(), obs -> updateColor());
+        registerChangeListener(colorPicker.showingProperty(), obs -> {
+            if (getSkinnable().isShowing()) {
+                show();
+            } else if (!popupContent.isCustomColorDialogShowing()) {
+                hide();
+            }
+        });
 
         colorLabelVisible.addListener(invalidate -> {
             if (displayNode != null) {

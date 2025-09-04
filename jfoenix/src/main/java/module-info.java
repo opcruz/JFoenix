@@ -21,8 +21,8 @@ module com.jfoenix{
     requires javafx.controls;
     requires javafx.graphics;
     requires java.logging;
-    requires java.xml;
     requires jdk.unsupported;
+    requires java.desktop;
 
     exports com.jfoenix.assets;
     exports com.jfoenix.cache;

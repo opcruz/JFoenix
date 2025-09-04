@@ -14,6 +14,8 @@ public class PickersController {
     @FXML
     private StackPane root;
     @FXML
+    private JFXDatePicker dateNormal;
+    @FXML
     private JFXDatePicker dateOverlay;
     @FXML
     private JFXTimePicker timeOverlay;
@@ -22,5 +24,16 @@ public class PickersController {
     public void init() {
         dateOverlay.setDialogParent(root);
         timeOverlay.setDialogParent(root);
+        dateNormal.setDialogParent(root);
+
+        System.out.println("dateOverlay");
+        System.out.println(dateOverlay.getStyle());
+        System.out.println(dateOverlay.getStyleClass());
+
+        System.out.println("dateNormal");
+        System.out.println(dateNormal.getStyle());
+        System.out.println(dateNormal.getStyleClass());
+
+
     }
 }

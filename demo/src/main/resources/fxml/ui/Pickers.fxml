@@ -13,7 +13,7 @@
             <HBox spacing="40" style="-fx-padding: 0 0 0 50;">
                 <children>
                     <JFXColorPicker minWidth="100"></JFXColorPicker>
-                    <JFXDatePicker></JFXDatePicker>
+                    <JFXDatePicker fx:id="dateNormal"></JFXDatePicker>
                     <JFXTimePicker></JFXTimePicker>
                 </children>
             </HBox>

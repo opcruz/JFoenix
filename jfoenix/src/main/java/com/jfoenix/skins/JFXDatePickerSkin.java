@@ -49,7 +49,7 @@ public class JFXDatePickerSkin extends JFXGenericPickerSkin<LocalDate> {
      * TODO:
      * 1. Handle different Chronology
      */
-    private JFXDatePicker jfxDatePicker;
+    private final JFXDatePicker jfxDatePicker;
 
     // displayNode is the editorNode
     private TextField displayNode;
@@ -68,7 +68,6 @@ public class JFXDatePickerSkin extends JFXGenericPickerSkin<LocalDate> {
 
         // create calender or clock button
         updateArrow(datePicker);
-        ((JFXTextField) getEditor()).setFocusColor(jfxDatePicker.getDefaultColor());
 
         registerChangeListener(datePicker.defaultColorProperty(), obs -> updateArrow(datePicker));
         registerChangeListener(datePicker.converterProperty(), obs -> reflectUpdateDisplayNode());

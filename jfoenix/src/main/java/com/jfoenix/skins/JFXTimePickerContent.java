@@ -42,6 +42,7 @@ import javafx.util.Duration;
 import javafx.util.converter.LocalTimeStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
+import java.awt.geom.Point2D;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -157,7 +158,7 @@ public class JFXTimePickerContent extends VBox {
             int index = (int) Math.round((180 + Math.toDegrees(theta)) / angle.get()),
                 timeValue;
             if (_24HourView) {
-                if (distance(0, 0, dx, dy) >= (contentCircleRadius - shift - (2 * selectionCircle.getRadius()))) {
+                if (Point2D.distance(0, 0, dx, dy) >= (contentCircleRadius - shift - (2 * selectionCircle.getRadius()))) {
                     hoursContent.getChildren().get(1).setVisible(false);
                     hoursContent.getChildren().get(0).setVisible(true);
                     pointerRotate.get().setAngle(index * angle.get());
@@ -198,12 +199,6 @@ public class JFXTimePickerContent extends VBox {
         contentContainer.setMinHeight(50);
         contentContainer.setPadding(new Insets(2, 12, 2, 12));
         return contentContainer;
-    }
-
-    private float distance(double x1, double y1, double x2, double y2) {
-        x1 -= x2;
-        y1 -= y2;
-        return (float)Math.sqrt(x1 * x1 + y1 * y1);
     }
 
     /*

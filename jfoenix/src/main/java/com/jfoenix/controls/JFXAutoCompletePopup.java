@@ -65,7 +65,7 @@ public class JFXAutoCompletePopup<T> extends PopupControl {
     public JFXAutoCompletePopup() {
         super();
         bridge = new CSSBridge();
-        PopupWindowHelper.getContent(this).setAll(new Node[]{this.bridge});
+        PopupWindowHelper.getContent(this).setAll(this.bridge);
         setAutoFix(true);
         setAutoHide(true);
         setHideOnEscape(true);
@@ -86,7 +86,7 @@ public class JFXAutoCompletePopup<T> extends PopupControl {
                               node.getScene().getX(),
                 parent.getY() + node.localToScene(0, 0).getY() +
                 node.getScene().getY() + ((Region)node).getHeight());
-            ((JFXAutoCompletePopupSkin<T>)getSkin()).animate();
+            ((JFXAutoCompletePopupSkin<T>) getSkin()).animate();
         }
     }
 

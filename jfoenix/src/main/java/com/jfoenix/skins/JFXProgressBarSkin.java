@@ -48,11 +48,10 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
     private double secondaryBarWidth = 0;
     private Animation indeterminateTransition;
     private Region clip;
-    private TreeShowingProperty treeShowingExpression;
+    private final TreeShowingProperty treeShowingExpression;
 
     public JFXProgressBarSkin(JFXProgressBar bar) {
         super(bar);
-
         this.treeShowingExpression = new TreeShowingProperty(bar);
 
         bar.widthProperty().addListener(observable -> {
@@ -62,18 +61,17 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
 
         registerChangeListener(bar.progressProperty(), (obs) -> updateProgress());
         registerChangeListener(bar.secondaryProgressProperty(), obs-> updateSecondaryProgress());
-        registerChangeListener(bar.visibleProperty(), obs->updateAnimation());
-        registerChangeListener(bar.parentProperty(), obs->updateAnimation());
-        registerChangeListener(bar.sceneProperty(), obs->updateAnimation());
+//        registerChangeListener(bar.visibleProperty(), obs->updateAnimation());
+//        registerChangeListener(bar.parentProperty(), obs->updateAnimation());
+//        registerChangeListener(bar.sceneProperty(), obs->updateAnimation());
 
         unregisterChangeListeners(treeShowingExpression);
         unregisterChangeListeners(bar.indeterminateProperty());
 
-        registerChangeListener(treeShowingExpression, obs -> this.updateAnimation());
-        registerChangeListener(bar.indeterminateProperty(), obs->initialize());
+        registerChangeListener(treeShowingExpression, obs -> updateAnimation());
+        registerChangeListener(bar.indeterminateProperty(), obs-> initialize());
 
         initialize();
-
         getSkinnable().requestLayout();
     }
 

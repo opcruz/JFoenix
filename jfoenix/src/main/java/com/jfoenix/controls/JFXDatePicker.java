@@ -22,7 +22,6 @@ package com.jfoenix.controls;
 import com.jfoenix.assets.JFoenixResources;
 import com.jfoenix.controls.base.IFXValidatableControl;
 import com.jfoenix.adapters.ReflectionHelper;
-import com.jfoenix.assets.JFoenixResources;
 import com.jfoenix.skins.JFXDatePickerSkin;
 import com.jfoenix.validation.base.ValidatorBase;
 import javafx.beans.property.ObjectProperty;
@@ -40,7 +39,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,7 +78,7 @@ public class JFXDatePicker extends DatePicker implements IFXValidatableControl {
                 editorNode.setFakeFocus(newVal);
             }
         });
-            editorNode.activeValidatorWritableProperty().bind(activeValidatorProperty());
+        editorNode.activeValidatorWritableProperty().bind(activeValidatorProperty());
         editor.set(editorNode);
     }
 
