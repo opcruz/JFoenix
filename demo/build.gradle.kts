@@ -5,8 +5,8 @@ plugins {
 }
 
 application {
-//    mainClass.set("demos.components.TextFieldDemo")
-    mainClass.set("demos.MainDemo")
+    mainClass.set("demos.components.ComboBoxDemo")
+//    mainClass.set("demos.MainDemo")
     mainModule.set("demo.main")
     applicationDefaultJvmArgs = listOf(
         "--add-opens", "java.base/java.lang.reflect=com.jfoenix",
