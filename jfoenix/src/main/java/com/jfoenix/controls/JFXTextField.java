@@ -23,11 +23,14 @@ import com.jfoenix.assets.JFoenixResources;
 import com.jfoenix.controls.base.IFXLabelFloatControl;
 import com.jfoenix.skins.JFXTextFieldSkin;
 import com.jfoenix.validation.base.ValidatorBase;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.css.*;
 import javafx.css.converter.BooleanConverter;
 import javafx.css.converter.PaintConverter;
+import javafx.scene.Node;
 import javafx.scene.control.Skin;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
@@ -124,6 +127,40 @@ public class JFXTextField extends TextField implements IFXLabelFloatControl {
         validationControl.resetValidation();
     }
 
+    /**
+     * An optional leading icon for the TextField
+     */
+    private ObjectProperty<Node> leadingGraphic = new SimpleObjectProperty<>();
+
+    public Node getLeadingGraphic() {
+        return leadingGraphic.get();
+    }
+
+    public ObjectProperty<Node> leadingGraphicProperty() {
+        return leadingGraphic;
+    }
+
+    public void setLeadingGraphic(Node leadingGraphic) {
+        this.leadingGraphic.set(leadingGraphic);
+    }
+
+    /**
+     * An optional trailing icon for the TextField
+     */
+    private ObjectProperty<Node> trailingGraphic = new SimpleObjectProperty<>();
+
+    public Node getTrailingGraphic() {
+        return trailingGraphic.get();
+    }
+
+    public ObjectProperty<Node> trailingGraphicProperty() {
+        return trailingGraphic;
+    }
+
+    public void setTrailingGraphic(Node trailingGraphic) {
+        this.trailingGraphic.set(trailingGraphic);
+    }
+
     /***************************************************************************
      *                                                                         *
      * Styleable Properties                                                    *
@@ -143,23 +180,23 @@ public class JFXTextField extends TextField implements IFXLabelFloatControl {
     /**
      * set true to show a float the prompt text when focusing the field
      */
-    private StyleableBooleanProperty labelFloat = new SimpleStyleableBooleanProperty(StyleableProperties.LABEL_FLOAT,
+    public StyleableBooleanProperty labelFloat = new SimpleStyleableBooleanProperty(StyleableProperties.LABEL_FLOAT,
         JFXTextField.this,
         "lableFloat",
         false);
 
     @Override
-    public final StyleableBooleanProperty labelFloatProperty() {
+    public StyleableBooleanProperty labelFloatProperty() {
         return this.labelFloat;
     }
 
     @Override
-    public final boolean isLabelFloat() {
+    public boolean isLabelFloat() {
         return this.labelFloatProperty().get();
     }
 
     @Override
-    public final void setLabelFloat(final boolean labelFloat) {
+    public void setLabelFloat(final boolean labelFloat) {
         this.labelFloatProperty().set(labelFloat);
     }
 
@@ -220,17 +257,17 @@ public class JFXTextField extends TextField implements IFXLabelFloatControl {
         false);
 
     @Override
-    public final StyleableBooleanProperty disableAnimationProperty() {
+    public StyleableBooleanProperty disableAnimationProperty() {
         return this.disableAnimation;
     }
 
     @Override
-    public final Boolean isDisableAnimation() {
+    public Boolean isDisableAnimation() {
         return disableAnimation != null && this.disableAnimationProperty().get();
     }
 
     @Override
-    public final void setDisableAnimation(final Boolean disabled) {
+    public void setDisableAnimation(final Boolean disabled) {
         this.disableAnimationProperty().set(disabled);
     }
 

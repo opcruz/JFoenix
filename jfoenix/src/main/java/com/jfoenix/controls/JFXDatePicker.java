@@ -59,7 +59,7 @@ public class JFXDatePicker extends DatePicker implements IFXValidatableControl {
      * {@inheritDoc}
      */
     public JFXDatePicker() {
-        initialize();
+        this(null);
     }
 
     /**

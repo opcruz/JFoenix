@@ -38,6 +38,7 @@ tasks {
             "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=com.jfoenix",
             "--add-exports=javafx.controls/com.sun.javafx.scene.control=com.jfoenix",
             "--add-exports=javafx.graphics/com.sun.javafx.util=com.jfoenix",
+            "--add-exports=javafx.base/com.sun.javafx.collections=com.jfoenix"
         )
     }
     javadoc {
@@ -56,6 +57,7 @@ tasks {
                 "javafx.controls/com.sun.javafx.scene.control.behavior=com.jfoenix",
                 "javafx.controls/com.sun.javafx.scene.control.inputmap=com.jfoenix",
                 "javafx.controls/com.sun.javafx.scene.control=com.jfoenix",
+                "javafx.base/com.sun.javafx.collections=com.jfoenix"
             ))
         }
     }

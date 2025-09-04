@@ -5,6 +5,7 @@ plugins {
 }
 
 application {
+//    mainClass.set("demos.components.TextFieldDemo")
     mainClass.set("demos.MainDemo")
     mainModule.set("demo.main")
     applicationDefaultJvmArgs = listOf(
@@ -15,7 +16,8 @@ application {
         "--add-exports", "javafx.base/com.sun.javafx.event=com.jfoenix",
         "--add-exports", "javafx.graphics/com.sun.javafx.scene=com.jfoenix",
         "--add-exports", "javafx.graphics/com.sun.javafx.stage=com.jfoenix",
-        "--add-exports", "javafx.controls/com.sun.javafx.scene.control.behavior=com.jfoenix"
+        "--add-exports", "javafx.controls/com.sun.javafx.scene.control.behavior=com.jfoenix",
+        "--add-exports", "javafx.controls/com.sun.javafx.scene.control=com.jfoenix"
     )
 }
 

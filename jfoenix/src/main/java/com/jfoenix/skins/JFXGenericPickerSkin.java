@@ -21,11 +21,10 @@ package com.jfoenix.skins;
 
 import com.jfoenix.adapters.ReflectionHelper;
 import com.jfoenix.controls.behavior.JFXGenericPickerBehavior;
-import com.sun.javafx.binding.ExpressionHelper;
 import com.sun.javafx.event.EventHandlerManager;
+import com.sun.javafx.scene.control.IDisconnectable;
+import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.stage.WindowEventDispatcher;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.ComboBoxBase;
@@ -39,6 +38,7 @@ import javafx.stage.Window;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -61,7 +61,7 @@ public abstract class JFXGenericPickerSkin<T> extends ComboBoxPopupControl<T>{
         super(comboBoxBase);
         behavior = new JFXGenericPickerBehavior<T>(comboBoxBase);
 
-        removeParentFakeFocusListener(comboBoxBase);
+        removeParentFakeFocusListener();
 
         this.mouseEnteredEventHandler = event -> behavior.mouseEntered(event);
         this.mousePressedEventHandler = event -> {
@@ -117,19 +117,14 @@ public abstract class JFXGenericPickerSkin<T> extends ComboBoxPopupControl<T>{
         }
     };
 
-    private void removeParentFakeFocusListener(ComboBoxBase<T> comboBoxBase) {
-        // handle FakeFocusField cast exception
+    private void removeParentFakeFocusListener() {
+        ListenerHelper lh = ListenerHelper.get(this);
+        // Access the internal list of IDisconnectable
         try {
-            final ReadOnlyBooleanProperty focusedProperty = comboBoxBase.focusedProperty();
-            ExpressionHelper value = ReflectionHelper.getFieldContent(focusedProperty.getClass().getSuperclass().getSuperclass(), focusedProperty, "helper");
-            ChangeListener[] changeListeners = ReflectionHelper.getFieldContent(value.getClass(), value, "changeListeners");
-            // remove parent focus listener to prevent editor class cast exception
-            for(int i = changeListeners.length - 1; i > 0; i--) {
-                if (changeListeners[i] != null && changeListeners[i].getClass().getName().contains("ComboBoxPopupControl")) {
-                    focusedProperty.removeListener(changeListeners[i]);
-                    break;
-                }
-            }
+            List<?> items  = ReflectionHelper.getFieldContent(ListenerHelper.class, lh, "items" );
+            // Workaround: find the listener that corresponds to comboBoxBase.focusedProperty()
+            // which is the 5th one
+            ((IDisconnectable) items.get(4)).disconnect();
         } catch (Exception e) {
             e.printStackTrace();
         }

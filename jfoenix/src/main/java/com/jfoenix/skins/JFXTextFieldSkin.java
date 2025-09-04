@@ -20,16 +20,21 @@
 package com.jfoenix.skins;
 
 import com.jfoenix.adapters.ReflectionHelper;
+import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.base.IFXLabelFloatControl;
+import com.jfoenix.utils.JFXNodeUtils;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ObservableDoubleValue;
+import javafx.event.Event;
 import javafx.scene.Node;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Control;
 import javafx.scene.control.skin.TextFieldSkin;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
 import java.lang.reflect.Field;
+import java.util.Set;
 
 /**
  * <h1>Material Design Text input control Skin, used for both JFXTextField/JFXPasswordField</h1>
@@ -38,7 +43,7 @@ import java.lang.reflect.Field;
  * @version 2.0
  * @since 2017-01-25
  */
-public class JFXTextFieldSkin<T extends TextField & IFXLabelFloatControl> extends TextFieldSkin {
+public class JFXTextFieldSkin<T extends JFXTextField & IFXLabelFloatControl> extends TextFieldSkin {
 
     private boolean invalid = true;
 
@@ -54,7 +59,6 @@ public class JFXTextFieldSkin<T extends TextField & IFXLabelFloatControl> extend
     public JFXTextFieldSkin(T textField) {
         super(textField);
         textPane = (Pane) this.getChildren().get(0);
-
         // get parent fields
         textNode = ReflectionHelper.getFieldContent(TextFieldSkin.class, this, "textNode");
         textTranslateX = ReflectionHelper.getFieldContent(TextFieldSkin.class, this, "textTranslateX");
@@ -74,20 +78,41 @@ public class JFXTextFieldSkin<T extends TextField & IFXLabelFloatControl> extend
         errorContainer = new ValidationPane<>(textField);
 
         getChildren().addAll(linesWrapper.line, linesWrapper.focusedLine, linesWrapper.promptContainer, errorContainer);
+        updateGraphic(textField.getLeadingGraphic(), "leading");
+        updateGraphic(textField.getTrailingGraphic(), "trailing");
 
         registerChangeListener(textField.disableProperty(), obs -> linesWrapper.updateDisabled());
         registerChangeListener(textField.focusColorProperty(), obs -> linesWrapper.updateFocusColor());
         registerChangeListener(textField.unFocusColorProperty(), obs -> linesWrapper.updateUnfocusColor());
         registerChangeListener(textField.disableAnimationProperty(), obs -> errorContainer.updateClip());
+        registerChangeListener(textField.leadingGraphicProperty(), obs -> updateGraphic(((JFXTextField) getSkinnable()).getLeadingGraphic(), "leading"));
+        registerChangeListener(textField.trailingGraphicProperty(), obs -> updateGraphic(((JFXTextField) getSkinnable()).getTrailingGraphic(), "trailing"));
     }
 
     @Override
     protected void layoutChildren(final double x, final double y, final double w, final double h) {
-        super.layoutChildren(x, y, w, h);
-
         final double height = getSkinnable().getHeight();
+        final Node leadingGraphic = ((JFXTextField) getSkinnable()).getLeadingGraphic();
+        final Node trailingGraphic = ((JFXTextField) getSkinnable()).getTrailingGraphic();
+        final double leadingW = leadingGraphic == null ? 0.0 : snapSize(leadingGraphic.prefWidth(height));
+        final double trailingW = trailingGraphic == null ? 0.0 : snapSize(trailingGraphic.prefWidth(height));
+
+        final double textX = snapPosition(x) + leadingW;
+        final double textW = w - snapSize(leadingW) - snapSize(trailingW);
+
+        super.layoutChildren(textX, y, textW, h);
         linesWrapper.layoutLines(x, y, w, h, height, Math.floor(h));
+        linesWrapper.layoutPrompt(textX, y, textW, h);
         errorContainer.layoutPane(x, height + linesWrapper.focusedLine.getHeight(), w, h);
+
+        // draw leading/trailing graphics
+        if (leadingGraphic != null) {
+            leadingGraphic.resizeRelocate(snappedLeftInset(), 0, leadingW, height);
+        }
+
+        if (trailingGraphic != null) {
+            trailingGraphic.resizeRelocate(w - trailingW + snappedLeftInset(), 0, trailingW, height);
+        }
 
         if (getSkinnable().getWidth() > 0) {
             updateTextPos();
@@ -104,6 +129,23 @@ public class JFXTextFieldSkin<T extends TextField & IFXLabelFloatControl> extend
         }
     }
 
+    private void updateGraphic(Node graphic, String id) {
+        Node old = getSkinnable().lookup("#" + id);
+        getChildren().remove(old);
+        if (graphic != null) {
+            graphic.setId(id);
+            graphic.setManaged(false);
+            // add tab events handler as there is a bug in javafx traversing engine
+//            TODO REVIEW
+            Set<Control> controls = JFXNodeUtils.getAllChildren(graphic, Control.class);
+            controls.forEach(control -> {
+                control.addEventHandler(KeyEvent.KEY_PRESSED, JFXNodeUtils.TRAVERSE_HANDLER);
+                control.addEventHandler(KeyEvent.KEY_TYPED, Event::consume);
+            });
+
+            getChildren().add(graphic);
+        }
+    }
 
     private void updateTextPos() {
         double textWidth = textNode.getLayoutBounds().getWidth();
@@ -158,4 +200,45 @@ public class JFXTextFieldSkin<T extends TextField & IFXLabelFloatControl> extend
             e.printStackTrace();
         }
     }
+
+    @Override
+    protected double computePrefWidth(double h, double topInset, double rightInset, double bottomInset, double leftInset) {
+        final double w = super.computePrefWidth(h, topInset, rightInset, bottomInset, leftInset);
+        Node leadingGraphic = ((JFXTextField) getSkinnable()).getTrailingGraphic();
+        Node trailingGraphic = ((JFXTextField) getSkinnable()).getTrailingGraphic();
+        final double leadingW = leadingGraphic == null ? 0.0 : snapSizeX(leadingGraphic.prefWidth(h));
+        final double trailingW = trailingGraphic == null ? 0.0 : snapSizeX(trailingGraphic.prefWidth(h));
+        return w + trailingW + leadingW;
+    }
+
+    @Override
+    protected double computePrefHeight(double w, double topInset, double rightInset, double bottomInset, double leftInset) {
+        final double h = super.computePrefHeight(w, topInset, rightInset, bottomInset, leftInset);
+        Node leadingGraphic = ((JFXTextField) getSkinnable()).getTrailingGraphic();
+        Node trailingGraphic = ((JFXTextField) getSkinnable()).getTrailingGraphic();
+        final double leadingH = leadingGraphic == null ? 0.0 : snapSizeX(leadingGraphic.prefHeight(w));
+        final double trailingH = trailingGraphic == null ? 0.0 : snapSizeX(trailingGraphic.prefHeight(w));
+        return Math.max(Math.max(h, leadingH), trailingH);
+    }
+
+    @Override
+    protected double computeMinWidth(double h, double topInset, double rightInset, double bottomInset, double leftInset) {
+        final double w = super.computeMinWidth(h, topInset, rightInset, bottomInset, leftInset);
+        Node leadingGraphic = ((JFXTextField) getSkinnable()).getTrailingGraphic();
+        Node trailingGraphic = ((JFXTextField) getSkinnable()).getTrailingGraphic();
+        final double leadingW = leadingGraphic == null ? 0.0 : snapSizeX(leadingGraphic.minWidth(h));
+        final double trailingW = trailingGraphic == null ? 0.0 : snapSizeX(trailingGraphic.minWidth(h));
+        return w + trailingW + leadingW;
+    }
+
+    @Override
+    protected double computeMinHeight(double w, double topInset, double rightInset, double bottomInset, double leftInset) {
+        final double h = super.computeMinHeight(w, topInset, rightInset, bottomInset, leftInset);
+        Node leadingGraphic = ((JFXTextField) getSkinnable()).getTrailingGraphic();
+        Node trailingGraphic = ((JFXTextField) getSkinnable()).getTrailingGraphic();
+        final double leadingH = leadingGraphic == null ? 0.0 : snapSizeX(leadingGraphic.minHeight(w));
+        final double trailingH = trailingGraphic == null ? 0.0 : snapSizeX(trailingGraphic.minHeight(w));
+        return Math.max(Math.max(h, leadingH), trailingH);
+    }
+
 }
