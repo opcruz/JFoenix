@@ -27,10 +27,10 @@ import com.jfoenix.effects.JFXDepthManager;
 import com.jfoenix.transitions.JFXAnimationTimer;
 import com.jfoenix.transitions.JFXKeyFrame;
 import com.jfoenix.transitions.JFXKeyValue;
-import com.sun.javafx.scene.control.skin.ToggleButtonSkin;
 import javafx.animation.Interpolator;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
+import javafx.scene.control.skin.ToggleButtonSkin;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -151,33 +151,26 @@ public class JFXToggleButtonSkin extends ToggleButtonSkin {
         );
         timer.setCacheNodes(circle, line);
 
-        registerChangeListener(toggleButton.toggleColorProperty(), "TOGGLE_COLOR");
-        registerChangeListener(toggleButton.unToggleColorProperty(), "UNTOGGLE_COLOR");
-        registerChangeListener(toggleButton.toggleLineColorProperty(), "TOGGLE_LINE_COLOR");
-        registerChangeListener(toggleButton.unToggleColorProperty(), "UNTOGGLE_LINE_COLOR");
-    }
-
-    @Override
-    protected void handleControlPropertyChanged(String p) {
-        if ("TOGGLE_COLOR".equals(p)) {
+        registerChangeListener(toggleButton.toggleColorProperty(), observableValue -> {
             if (getSkinnable().isSelected()) {
                 circle.setFill(((JFXToggleButton) getSkinnable()).getToggleColor());
             }
-        } else if ("UNTOGGLE_COLOR".equals(p)) {
+        });
+        registerChangeListener(toggleButton.unToggleColorProperty(), observableValue -> {
             if (!getSkinnable().isSelected()) {
                 circle.setFill(((JFXToggleButton) getSkinnable()).getUnToggleColor());
             }
-        } else if ("TOGGLE_LINE_COLOR".equals(p)) {
+        });
+        registerChangeListener(toggleButton.toggleLineColorProperty(), observableValue -> {
             if (getSkinnable().isSelected()) {
                 line.setStroke(((JFXToggleButton) getSkinnable()).getToggleLineColor());
             }
-        } else if ("UNTOGGLE_LINE_COLOR".equals(p)) {
+        });
+        registerChangeListener(toggleButton.unToggleColorProperty(), observableValue -> {
             if (!getSkinnable().isSelected()) {
                 line.setStroke(((JFXToggleButton) getSkinnable()).getUnToggleLineColor());
             }
-        } else {
-            super.handleControlPropertyChanged(p);
-        }
+        });
     }
 
     private double computeTranslation(double circleRadius, Line line) {

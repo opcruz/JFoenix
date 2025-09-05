@@ -21,11 +21,11 @@ package com.jfoenix.controls;
 
 import com.jfoenix.assets.JFoenixResources;
 import com.jfoenix.skins.JFXColorPickerSkin;
-import com.sun.javafx.css.converters.BooleanConverter;
 import javafx.css.CssMetaData;
 import javafx.css.SimpleStyleableBooleanProperty;
 import javafx.css.Styleable;
 import javafx.css.StyleableBooleanProperty;
+import javafx.css.converter.BooleanConverter;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Skin;
 import javafx.scene.paint.Color;
@@ -86,6 +86,16 @@ public class JFXColorPicker extends ColorPicker {
      * this control.
      */
     private static final String DEFAULT_STYLE_CLASS = "jfx-color-picker";
+
+    private double[] preDefinedColors = null;
+
+    public double[] getPreDefinedColors() {
+        return preDefinedColors;
+    }
+
+    public void setPreDefinedColors(double[] preDefinedColors) {
+        this.preDefinedColors = preDefinedColors;
+    }
 
     /**
      * disable animation on button action

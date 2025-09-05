@@ -21,15 +21,15 @@ package com.jfoenix.controls;
 
 import com.jfoenix.converters.RipplerMaskTypeConverter;
 import com.jfoenix.utils.JFXNodeUtils;
-import com.sun.javafx.css.converters.BooleanConverter;
-import com.sun.javafx.css.converters.PaintConverter;
-import com.sun.javafx.css.converters.SizeConverter;
 import javafx.animation.*;
 import javafx.beans.DefaultProperty;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.css.*;
+import javafx.css.converter.BooleanConverter;
+import javafx.css.converter.PaintConverter;
+import javafx.css.converter.SizeConverter;
 import javafx.geometry.Bounds;
 import javafx.scene.CacheHint;
 import javafx.scene.Group;

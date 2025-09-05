@@ -21,16 +21,18 @@ package com.jfoenix.controls;
 
 import com.jfoenix.assets.JFoenixResources;
 import com.jfoenix.controls.base.IFXValidatableControl;
+import com.jfoenix.adapters.ReflectionHelper;
+import com.jfoenix.assets.JFoenixResources;
 import com.jfoenix.skins.JFXDatePickerSkin;
 import com.jfoenix.validation.base.ValidatorBase;
-import com.sun.javafx.css.converters.BooleanConverter;
-import com.sun.javafx.css.converters.PaintConverter;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.css.*;
+import javafx.css.converter.BooleanConverter;
+import javafx.css.converter.PaintConverter;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Skin;
 import javafx.scene.control.TextField;
@@ -70,22 +72,16 @@ public class JFXDatePicker extends DatePicker implements IFXValidatableControl {
 
     private void initialize() {
         this.getStyleClass().add(DEFAULT_STYLE_CLASS);
-        try {
-            editorProperty();
-            Field editorField = DatePicker.class.getDeclaredField("editor");
-            editorField.setAccessible(true);
-            ReadOnlyObjectWrapper<TextField> editor = (ReadOnlyObjectWrapper<TextField>) editorField.get(this);
-            final FakeFocusJFXTextField editorNode = new FakeFocusJFXTextField();
-            this.focusedProperty().addListener((obj, oldVal, newVal) -> {
-                if (getEditor() != null) {
-                    editorNode.setFakeFocus(newVal);
-                }
-            });
+        editorProperty();
+        ReadOnlyObjectWrapper<TextField> editor = ReflectionHelper.getFieldContent(DatePicker.class, this, "editor" );
+        final FakeFocusJFXTextField editorNode = new FakeFocusJFXTextField();
+        this.focusedProperty().addListener((obj, oldVal, newVal) -> {
+            if (getEditor() != null) {
+                editorNode.setFakeFocus(newVal);
+            }
+        });
             editorNode.activeValidatorWritableProperty().bind(activeValidatorProperty());
-            editor.set(editorNode);
-        } catch (NoSuchFieldException e) {
-        } catch (IllegalAccessException e) {
-        }
+        editor.set(editorNode);
     }
 
     /**

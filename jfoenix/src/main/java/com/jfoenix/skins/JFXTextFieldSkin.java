@@ -19,11 +19,13 @@
 
 package com.jfoenix.skins;
 
+import com.jfoenix.adapters.ReflectionHelper;
 import com.jfoenix.controls.base.IFXLabelFloatControl;
-import com.sun.javafx.scene.control.skin.TextFieldSkin;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
+import javafx.scene.control.skin.TextFieldSkin;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
@@ -43,6 +45,7 @@ public class JFXTextFieldSkin<T extends TextField & IFXLabelFloatControl> extend
     private Text promptText;
     private Pane textPane;
     private Node textNode;
+    private ObservableDoubleValue textRight;
     private DoubleProperty textTranslateX;
 
     private ValidationPane<T> errorContainer;
@@ -53,44 +56,29 @@ public class JFXTextFieldSkin<T extends TextField & IFXLabelFloatControl> extend
         textPane = (Pane) this.getChildren().get(0);
 
         // get parent fields
-        reflectionFieldConsumer("textNode", field -> textNode = (Node) field.get(this));
-        reflectionFieldConsumer("textTranslateX", field -> textTranslateX = (DoubleProperty) field.get(this));
+        textNode = ReflectionHelper.getFieldContent(TextFieldSkin.class, this, "textNode");
+        textTranslateX = ReflectionHelper.getFieldContent(TextFieldSkin.class, this, "textTranslateX");
+        textRight = ReflectionHelper.getFieldContent(TextFieldSkin.class, this, "textRight");
 
         linesWrapper = new PromptLinesWrapper<T>(
             textField,
-            super.promptTextFill,
+            promptTextFillProperty(),
             textField.textProperty(),
             textField.promptTextProperty(),
             () -> promptText);
 
         linesWrapper.init(() -> createPromptNode(), textPane);
 
-        reflectionFieldConsumer("usePromptText", field -> field.set(this, linesWrapper.usePromptText));
+        ReflectionHelper.setFieldContent(TextFieldSkin.class, this, "usePromptText", linesWrapper.usePromptText);
 
         errorContainer = new ValidationPane<>(textField);
 
         getChildren().addAll(linesWrapper.line, linesWrapper.focusedLine, linesWrapper.promptContainer, errorContainer);
 
-        registerChangeListener(textField.disableProperty(), "DISABLE_NODE");
-        registerChangeListener(textField.focusColorProperty(), "FOCUS_COLOR");
-        registerChangeListener(textField.unFocusColorProperty(), "UNFOCUS_COLOR");
-        registerChangeListener(textField.disableAnimationProperty(), "DISABLE_ANIMATION");
-    }
-
-    @Override
-    protected void handleControlPropertyChanged(String propertyReference) {
-        if ("DISABLE_NODE".equals(propertyReference)) {
-            linesWrapper.updateDisabled();
-        } else if ("FOCUS_COLOR".equals(propertyReference)) {
-            linesWrapper.updateFocusColor();
-        } else if ("UNFOCUS_COLOR".equals(propertyReference)) {
-            linesWrapper.updateUnfocusColor();
-        } else if ("DISABLE_ANIMATION".equals(propertyReference)) {
-            // remove error clip if animation is disabled
-            errorContainer.updateClip();
-        } else {
-            super.handleControlPropertyChanged(propertyReference);
-        }
+        registerChangeListener(textField.disableProperty(), obs -> linesWrapper.updateDisabled());
+        registerChangeListener(textField.focusColorProperty(), obs -> linesWrapper.updateFocusColor());
+        registerChangeListener(textField.unFocusColorProperty(), obs -> linesWrapper.updateUnfocusColor());
+        registerChangeListener(textField.disableAnimationProperty(), obs -> errorContainer.updateClip());
     }
 
     @Override
@@ -120,7 +108,7 @@ public class JFXTextFieldSkin<T extends TextField & IFXLabelFloatControl> extend
     private void updateTextPos() {
         double textWidth = textNode.getLayoutBounds().getWidth();
         final double promptWidth = promptText == null ? 0 : promptText.getLayoutBounds().getWidth();
-        switch (getHAlignment()) {
+        switch (getSkinnable().getAlignment().getHpos()) {
             case CENTER:
                 linesWrapper.promptTextScale.setPivotX(promptWidth / 2);
                 double midPoint = textRight.get() / 2;
@@ -143,7 +131,6 @@ public class JFXTextFieldSkin<T extends TextField & IFXLabelFloatControl> extend
         if (promptText != null || !linesWrapper.usePromptText.get()) {
             return;
         }
-
         promptText = new Text();
         promptText.setManaged(false);
         promptText.getStyleClass().add("text");
@@ -161,30 +148,14 @@ public class JFXTextFieldSkin<T extends TextField & IFXLabelFloatControl> extend
         }
 
         try {
-            reflectionFieldConsumer("promptNode", field -> {
-                Object oldValue = field.get(this);
-                if (oldValue != null) {
-                    textPane.getChildren().remove(oldValue);
-                }
-                field.set(this, promptText);
-            });
+            Field field = ReflectionHelper.getField(TextFieldSkin.class, "promptNode");
+            Object oldValue = field.get(this);
+            if (oldValue != null) {
+                textPane.getChildren().remove(oldValue);
+            }
+            field.set(this, promptText);
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private <T> void reflectionFieldConsumer(String fieldName, CheckedConsumer<Field> consumer) {
-        Field field = null;
-        try {
-            field = TextFieldSkin.class.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            consumer.accept(field);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private interface CheckedConsumer<T> {
-        void accept(T t) throws Exception;
     }
 }

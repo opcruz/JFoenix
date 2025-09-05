@@ -20,14 +20,16 @@
 package com.jfoenix.skins;
 
 import com.jfoenix.controls.JFXComboBox;
-import com.sun.javafx.css.converters.PaintConverter;
-import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.beans.property.ObjectProperty;
 import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
+import javafx.css.converter.PaintConverter;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.skin.ComboBoxListViewSkin;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -94,7 +96,16 @@ public class JFXComboBoxListViewSkin<T> extends ComboBoxListViewSkin<T> {
             () -> promptText);
 
         linesWrapper.init(() -> createPromptNode());
-        linesWrapper.clip.widthProperty().bind(linesWrapper.promptContainer.widthProperty().subtract(arrowButton.widthProperty()));
+        Pane arrowButton = null;
+        for (Node node : getChildren()) {
+            if (node.getId().equals("arrow-button")) {
+                arrowButton = (Pane) node;
+                break;
+            }
+        }
+        if (arrowButton != null) {
+            linesWrapper.clip.widthProperty().bind(linesWrapper.promptContainer.widthProperty().subtract(arrowButton.widthProperty()));
+        }
 
         errorContainer = new ValidationPane<>(comboBox);
 
@@ -104,32 +115,13 @@ public class JFXComboBoxListViewSkin<T> extends ComboBoxListViewSkin<T> {
             comboBox.getEditor().setStyle("-fx-background-color:TRANSPARENT;-fx-padding: 0.333333em 0em;");
             comboBox.getEditor().promptTextProperty().unbind();
             comboBox.getEditor().setPromptText(null);
-            comboBox.getEditor().textProperty().addListener((o, oldVal, newVal) -> {
-                linesWrapper.usePromptText.invalidate();
-                comboBox.setValue(getConverter().fromString(newVal));
-            });
+            comboBox.getEditor().textProperty().addListener((o, oldVal, newVal) -> linesWrapper.usePromptText.invalidate());
         }
 
-        registerChangeListener(comboBox.disableProperty(), "DISABLE_NODE");
-        registerChangeListener(comboBox.focusColorProperty(), "FOCUS_COLOR");
-        registerChangeListener(comboBox.unFocusColorProperty(), "UNFOCUS_COLOR");
-        registerChangeListener(comboBox.disableAnimationProperty(), "DISABLE_ANIMATION");
-    }
-
-    @Override
-    protected void handleControlPropertyChanged(String propertyReference) {
-        if ("DISABLE_NODE".equals(propertyReference)) {
-            linesWrapper.updateDisabled();
-        } else if ("FOCUS_COLOR".equals(propertyReference)) {
-            linesWrapper.updateFocusColor();
-        } else if ("UNFOCUS_COLOR".equals(propertyReference)) {
-            linesWrapper.updateUnfocusColor();
-        } else if ("DISABLE_ANIMATION".equals(propertyReference)) {
-            // remove error clip if animation is disabled
-            errorContainer.updateClip();
-        } else {
-            super.handleControlPropertyChanged(propertyReference);
-        }
+        registerChangeListener(comboBox.disableProperty(), obs -> linesWrapper.updateDisabled());
+        registerChangeListener(comboBox.focusColorProperty(), obs -> linesWrapper.updateFocusColor());
+        registerChangeListener(comboBox.unFocusColorProperty(), obs -> linesWrapper.updateUnfocusColor());
+        registerChangeListener(comboBox.disableAnimationProperty(), obs -> errorContainer.updateClip());
     }
 
     /***************************************************************************
@@ -144,7 +136,7 @@ public class JFXComboBoxListViewSkin<T> extends ComboBoxListViewSkin<T> {
         super.layoutChildren(x, y, w, h);
         final double height = getSkinnable().getHeight();
         linesWrapper.layoutLines(x, y, w, h, height,
-            promptText == null ? 0 : snapPosition(promptText.getBaselineOffset() + promptText.getLayoutBounds().getHeight() * .36));
+            promptText == null ? 0 : snapPositionX(promptText.getBaselineOffset() + promptText.getLayoutBounds().getHeight() * .36));
         errorContainer.layoutPane(x, height + linesWrapper.focusedLine.getHeight(), w, h);
 
         linesWrapper.updateLabelFloatLayout();
@@ -163,7 +155,6 @@ public class JFXComboBoxListViewSkin<T> extends ComboBoxListViewSkin<T> {
             return;
         }
         promptText = new Text();
-        StackPane.setAlignment(promptText, Pos.CENTER_LEFT);
         // create my custom pane for the prompt node
         promptText.textProperty().bind(getSkinnable().promptTextProperty());
         promptText.fillProperty().bind(linesWrapper.animatedPromptTextFill);
@@ -174,7 +165,7 @@ public class JFXComboBoxListViewSkin<T> extends ComboBoxListViewSkin<T> {
         linesWrapper.promptContainer.getChildren().add(promptText);
 
         if (getSkinnable().isFocused() && ((JFXComboBox<T>) getSkinnable()).isLabelFloat()) {
-            promptText.setTranslateY(-snapPosition(promptText.getBaselineOffset() + promptText.getLayoutBounds().getHeight() * .36));
+            promptText.setTranslateY(-snapPositionY(promptText.getBaselineOffset() + promptText.getLayoutBounds().getHeight() * .36));
             linesWrapper.promptTextScale.setX(0.85);
             linesWrapper.promptTextScale.setY(0.85);
         }

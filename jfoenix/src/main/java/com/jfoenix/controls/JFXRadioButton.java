@@ -21,9 +21,9 @@ package com.jfoenix.controls;
 
 import com.jfoenix.assets.JFoenixResources;
 import com.jfoenix.skins.JFXRadioButtonSkin;
-import com.sun.javafx.css.converters.BooleanConverter;
-import com.sun.javafx.css.converters.ColorConverter;
 import javafx.css.*;
+import javafx.css.converter.BooleanConverter;
+import javafx.css.converter.ColorConverter;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Skin;
 import javafx.scene.paint.Color;
