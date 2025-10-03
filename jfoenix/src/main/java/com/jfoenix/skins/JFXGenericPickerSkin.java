@@ -64,8 +64,12 @@ public abstract class JFXGenericPickerSkin<T> extends ComboBoxPopupControl<T> {
         super(comboBoxBase);
         behavior = new JFXGenericPickerBehavior<>(comboBoxBase);
 
-        ListenerHelper.get(this).disconnect(); // remove all parent listeners
         iDisconnectables = getItemsListenerHelper();
+        // remove all parent listeners except KeyEvent (the last one added)
+        for (int i = iDisconnectables.size() - 2; i >= 0; i--) {
+            IDisconnectable d = iDisconnectables.remove(i);
+            d.disconnect();
+        }
 
         initAndUnregisterParentArrowButton();
         updateArrowButtonListeners();
@@ -98,7 +102,7 @@ public abstract class JFXGenericPickerSkin<T> extends ComboBoxPopupControl<T> {
     private void initPopupAndRemoveParentListener() {
         popup = ReflectionHelper.invoke(ComboBoxPopupControl.class, this, "getPopup");
         popup.setOnAutoHide(event -> behavior.onAutoHide(popup)); // override parent auto hide
-        iDisconnectables.get(0).disconnect(); // unregister popup mouse clicked
+        iDisconnectables.get(1).disconnect(); // unregister popup mouse clicked
         popup.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> behavior.onAutoHide(popup));
     }
 
